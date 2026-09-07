@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 /** Retain roughly a week of history to stay within Neon's free storage tier. */
-const RETENTION_DAYS = 7;
+const RETENTION_DAYS = 1;
 
 /**
  * Compare the caller's secret against `CRON_SECRET`.

@@ -13,6 +13,15 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    // Verification scripts inspect loosely-typed query results and are run
+    // manually via tsx, never bundled. App-code rules would add noise here
+    // without improving safety.
+    files: ["scripts/**"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

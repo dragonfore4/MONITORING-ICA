@@ -1,0 +1,46 @@
+
+# Probes ICA model latency on a schedule.
+#
+# Vercel's Hobby plan limits cron jobs to once per day, which is too coarse for
+# latency monitoring, so scheduling lives here instead. GitHub Actions cron is
+# best-effort and may lag by several minutes under load; that is acceptable for
+# trend data. Use a paid uptime service if you need strict intervals.
+name: Probe ICA latency
+
+on:
+  schedule:
+    # Every 10 minutes. Tighten or relax to trade resolution against cost.
+    - cron: "*/10 * * * *"
+  # Allows a manual run from the Actions tab to verify setup.
+  workflow_dispatch:
+
+# Prevents overlapping runs from double-writing probes if one is slow.
+concurrency:
+  group: probe-ica
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger probe endpoint
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SITE_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::SITE_URL and CRON_SECRET repository secrets must be set."
+            exit 1
+          fi
+
+          # --fail-with-body surfaces the API's error message on non-2xx while
+          # still failing the step, which makes debugging far easier.
+          curl --fail-with-body \
+               --silent \
+               --show-error \
+               --max-time 90 \
+               -X POST \
+               -H "Authorization: Bearer ${CRON_SECRET}" \
+               "${SITE_URL%/}/api/probe"

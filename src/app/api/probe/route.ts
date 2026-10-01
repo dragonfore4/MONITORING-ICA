@@ -6,7 +6,7 @@
  * jobs at once per day, which is far too coarse for latency monitoring.
  */
 import { NextRequest } from "next/server";
-import { config, getModels } from "@/lib/config";
+import { config, getModels, getModelsSetting } from "@/lib/config";
 import {
   ensureSchema,
   insertProbeResults,
@@ -66,6 +66,7 @@ async function handle(req: NextRequest) {
   }
 
   try {
+    console.info(`[probe] ICA_MODELS=${JSON.stringify(getModelsSetting())}`);
     await ensureSchema();
 
     // Prefer the explicit allow-list; fall back to gateway discovery so the app

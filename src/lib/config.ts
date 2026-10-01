@@ -29,8 +29,12 @@ function optional(name: string, fallback: string): string {
  * Provided as a comma-separated list so it can be changed on Vercel without a
  * code deploy, e.g. `ICA_MODELS=gpt-4o,claude-3-5-sonnet,llama-3.1-70b`.
  */
+export function getModelsSetting(): string {
+  return optional("ICA_MODELS", "");
+}
+
 export function getModels(): string[] {
-  return optional("ICA_MODELS", "")
+  return getModelsSetting()
     .split(",")
     .map((m) => m.trim())
     .filter(Boolean);
